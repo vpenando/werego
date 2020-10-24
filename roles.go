@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// Role defines each player's goal.
-type Role int
+// Role defines each player's goal and abilities.
+type Role = int
 
 // Here are the different players' roles.
 const (

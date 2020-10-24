@@ -1,54 +1,62 @@
 package werego
 
-type character struct {
-	//Name string
+// Character represent an in game character.
+// It has a role and some additional informations.
+type Character struct {
 	Role Role
 
+	// Private fields
 	sheriff bool
 	alive   bool
 }
 
-func NewCharacter(role Role) *character {
-	c := character{
+// NewCharacter creates a new character.
+// This character has theses properties:
+//
+//  - The character has a given role;
+//  - The character is considered alive;
+//  - The character is NOT sheriff.
+func NewCharacter(role Role) Character {
+	c := Character{
 		Role:    role,
 		alive:   true,
 		sheriff: false,
 	}
-	return &c
-}
-
-// Character is... a character.
-type Character interface {
-	IsAlive() bool
-	ElectAsSheriff()
-	IsSheriff() bool
-	Kill()
+	return c
 }
 
 // IsAlive returns true if the current character
 // has not been killed.
-func (p character) IsAlive() bool {
-	return p.alive
+func (c Character) IsAlive() bool {
+	return c.alive
 }
 
 // ElectAsSheriff sets the current character as
 // the sheriff.
-func (p *character) ElectAsSheriff() {
-	p.sheriff = true
+func (c *Character) ElectAsSheriff() {
+	c.sheriff = true
 }
 
 // IsSheriff returns true if the current character
 // was elected sheriff.
-func (p character) IsSheriff() bool {
-	return p.sheriff
+func (c Character) IsSheriff() bool {
+	return c.sheriff
+}
+
+// IsHuman returns true if the current character
+// is NOT a werewolf.
+func (c Character) IsHuman() bool {
+	return !c.IsWerewolf()
 }
 
 // IsWerewolf returns true if the current character
 // is a werewolf.
-func (p character) IsWerewolf() bool {
-	return p.Role&RoleWerewolf != 0
+func (c Character) IsWerewolf() bool {
+	return c.Role&RoleWerewolf != 0
 }
 
-func (p *character) Kill() {
-	p.alive = false
+// Kill sets 'alive' to false, meaning the current
+// character has been killed.
+func (c *Character) Kill() {
+	c.alive = false
 }
