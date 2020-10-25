@@ -260,6 +260,8 @@ func (wb WereBot) Role(mention string) (string, error) {
 	return "", errors.New("player not found")
 }
 
+// Roles prints the roles of EACH player.
+// Everyone can read it.
 func (wb WereBot) Roles() string {
 	roles := ""
 	for _, player := range wb.players {
