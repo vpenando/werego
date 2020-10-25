@@ -15,6 +15,7 @@ const (
 	CommandRole       = CommandPrefix + "role"
 	CommandCleanVotes = CommandPrefix + "cleanvotes"
 	CommandHelp       = CommandPrefix + "help"
+	CommandAlive      = CommandPrefix + "alive"
 )
 
 type detailledCommand struct {

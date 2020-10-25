@@ -133,6 +133,14 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		wb.votes = make(map[string]int, 0)
 	case CommandHelp:
 		s.ChannelMessageSend(m.ChannelID, help())
+	case CommandAlive:
+		alivePlayers, err := wb.AlivePlayers()
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+		} else {
+			s.ChannelMessageSend(m.ChannelID, alivePlayers)
+		}
+
 	}
 
 }
@@ -253,7 +261,7 @@ func (wb WereBot) Role(mention string) (string, error) {
 // It requires the game to be started.
 func (wb *WereBot) Kill(mention string) error {
 	if !wb.started {
-		return errors.New("bot is not started")
+		return errors.New("game is not started")
 	}
 	if !wb.isMentionInUsers(mention) {
 		return errors.New("player not found")
@@ -284,6 +292,21 @@ func (wb *WereBot) sendPlayersRoles() {
 		roleName, _ := RoleToString(player.Role, CurrentLanguage)
 		wb.Bot.ChannelMessageSend(userChannel.ID, roleName)
 	}
+}
+
+// AlivePlayers returns the names of all
+// players that has not been killed.
+func (wb WereBot) AlivePlayers() (string, error) {
+	if wb.started {
+		return "", errors.New("game is not started")
+	}
+	alivePlayers := make([]string, 0)
+	for _, player := range wb.players {
+		if player.alive {
+			alivePlayers = append(alivePlayers, player.User.Username)
+		}
+	}
+	return strings.Join(alivePlayers, ", "), nil
 }
 
 func (wb *WereBot) reset() {
