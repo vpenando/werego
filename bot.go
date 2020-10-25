@@ -18,6 +18,7 @@ const (
 // It also contains the logic and game data.
 type WereBot struct {
 	session   *discord.Session
+	voice     *discord.VoiceConnection
 	players   Players
 	users     []*discord.User
 	started   bool
@@ -121,6 +122,10 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, help())
 	case CommandAlive:
 		wb.handleAlive(s, m)
+	case CommandConnect:
+		wb.handleConnectAudio(args[0], s, m)
+	case CommandDisconnect:
+		wb.disconnect()
 	}
 }
 
@@ -169,6 +174,46 @@ func (wb *WereBot) handleAlive(s *discord.Session, m *discord.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
 	} else {
 		s.ChannelMessageSend(m.ChannelID, alivePlayers)
+	}
+}
+
+func (wb *WereBot) handleConnectAudio(channelName string, s *discord.Session, m *discord.MessageCreate) {
+	c, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		fmt.Println("Cound not find channel.")
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Find the guild for that channel.
+	g, err := s.State.Guild(c.GuildID)
+	if err != nil {
+		// Could not find guild.
+		fmt.Println("Could not find guild.")
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, c := range g.Channels {
+		if c.Type == discord.ChannelTypeGuildVoice && c.Name == channelName {
+			voice, err := s.ChannelVoiceJoin(c.GuildID, c.ID, false, false)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			if wb.voice != nil {
+				wb.voice.Disconnect()
+			}
+			wb.voice = voice
+			break
+		}
+	}
+}
+
+func (wb *WereBot) disconnect() {
+	if wb.voice != nil {
+		wb.voice.Disconnect()
+		wb.voice = nil
 	}
 }
 

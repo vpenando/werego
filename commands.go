@@ -17,6 +17,8 @@ const (
 	CommandCleanVotes = CommandPrefix + "cleanvotes"
 	CommandHelp       = CommandPrefix + "help"
 	CommandAlive      = CommandPrefix + "alive"
+	CommandConnect    = CommandPrefix + "connect"
+	CommandDisconnect = CommandPrefix + "disconnect"
 )
 
 type detailledCommand struct {
@@ -68,6 +70,15 @@ var commands = []detailledCommand{
 	{
 		Text:     CommandAlive,
 		HelpText: "Returns the name of players that has not been killed.",
+	},
+	{
+		Text:         CommandConnect,
+		HelpText:     "Connects to a channel. Usage: '!connect channel'",
+		ExpectedArgs: 1,
+	},
+	{
+		Text:     CommandDisconnect,
+		HelpText: "Disconnects from a voice channel, if connected.",
 	},
 }
 
