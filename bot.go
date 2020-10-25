@@ -129,6 +129,8 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		} else {
 			s.ChannelMessageSend(m.ChannelID, role)
 		}
+	case CommandRoles:
+		s.ChannelMessageSend(m.ChannelID, wb.Roles())
 	case CommandCleanVotes:
 		wb.votes = make(map[string]int, 0)
 	case CommandHelp:
@@ -248,12 +250,26 @@ func (wb *WereBot) Votes() string {
 // the channel.
 func (wb WereBot) Role(mention string) (string, error) {
 	mention = strings.ReplaceAll(mention, "!", "")
-	for _, p := range wb.players {
-		if mention == p.User.Mention() {
-			return RoleToString(p.Role, CurrentLanguage)
+	for _, player := range wb.players {
+		if mention == player.User.Mention() {
+			return RoleToString(player.Role, CurrentLanguage)
+		}
+	}
+	for _, user := range wb.users {
+		if mention == user.Mention() {
+			return "", errors.New("role not set")
 		}
 	}
 	return "", errors.New("player not found")
+}
+
+func (wb WereBot) Roles() string {
+	roles := ""
+	for _, player := range wb.players {
+		role, _ := RoleToString(player.Role, CurrentLanguage)
+		roles += fmt.Sprintf("%s: %s\n", player.User.Username, role)
+	}
+	return roles
 }
 
 // Kill removes a player from the game.

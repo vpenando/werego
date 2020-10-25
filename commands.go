@@ -13,6 +13,7 @@ const (
 	CommandKill       = CommandPrefix + "kill"
 	CommandJoined     = CommandPrefix + "joined"
 	CommandRole       = CommandPrefix + "role"
+	CommandRoles      = CommandPrefix + "roles"
 	CommandCleanVotes = CommandPrefix + "cleanvotes"
 	CommandHelp       = CommandPrefix + "help"
 	CommandAlive      = CommandPrefix + "alive"
@@ -55,6 +56,10 @@ var commands = []detailledCommand{
 		Text:         CommandRole,
 		HelpText:     "Displays the role of a player.",
 		ExpectedArgs: 1,
+	},
+	{
+		Text:     CommandRoles,
+		HelpText: "Displays the role of each player.",
 	},
 	{
 		Text:     CommandCleanVotes,
