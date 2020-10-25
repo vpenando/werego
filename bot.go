@@ -18,7 +18,7 @@ const (
 // It also contains the logic and game data.
 type WereBot struct {
 	session   *discord.Session
-	players   []*Player
+	players   Players
 	users     []*discord.User
 	started   bool
 	startDate time.Time
@@ -27,14 +27,16 @@ type WereBot struct {
 
 // NewWereBot returns a new bot that is authenticated
 // with a given token.
+//
+// If the authentication fails, an error is returned.
 func NewWereBot(token string) (*WereBot, error) {
-	bot, err := discord.New(fmt.Sprintf("Bot %s", token))
+	session, err := discord.New(fmt.Sprintf("Bot %s", token))
 	if err != nil {
 		return nil, err
 	}
-	wb := &WereBot{session: bot}
-	bot.AddHandler(func(s *discord.Session, m *discord.MessageCreate) {
-		listen(wb, s, m)
+	wb := &WereBot{session: session}
+	wb.session.AddHandler(func(s *discord.Session, m *discord.MessageCreate) {
+		go listen(wb, s, m)
 	})
 	wb.reset()
 	err = wb.session.Open()
@@ -42,10 +44,15 @@ func NewWereBot(token string) (*WereBot, error) {
 }
 
 // Close closes the connection.
+//
+// session.Close() can return an error
+// but it is ignored here.
 func (wb *WereBot) Close() {
 	wb.session.Close()
 }
 
+// Returns true if only humans (aka non-ww)
+// players remain.
 func (wb WereBot) humansWon() bool {
 	for _, player := range wb.players {
 		if player.alive && player.Role&RoleWerewolf != 0 {
@@ -55,22 +62,15 @@ func (wb WereBot) humansWon() bool {
 	return true
 }
 
+// Returns true if there is at least 50%
+// of werewolves among players.
 func (wb WereBot) werewolvesWon() bool {
-	wwCount := 0
-	aliveCount := 0
-	for _, player := range wb.players {
-		if player.alive {
-			aliveCount++
-		}
-	}
-	for _, player := range wb.players {
-		if player.alive && player.Role&RoleWerewolf != 0 {
-			wwCount++
-		}
-	}
+	wwCount := len(wb.players.Werewolves())
+	aliveCount := len(wb.players.Alive())
 	return wwCount >= (aliveCount / 2)
 }
 
+// Handles text commands.
 func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 	if len(m.Content) == 0 || m.Content[0] != '!' || len(m.Content) <= 2 {
 		return
@@ -95,17 +95,9 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 
 	switch command {
 	case CommandJoin:
-		if err := wb.Join(m.Author); err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-		} else {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s registered!", m.Author.Mention()))
-		}
+		wb.handleJoin(s, m)
 	case CommandStart:
-		if err := wb.Start(); err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
-		} else {
-			s.ChannelMessageSend(m.ChannelID, "Started!")
-		}
+		wb.handleStart(s, m)
 	case CommandStop:
 		wb.Stop()
 	case CommandJoined:
@@ -118,24 +110,9 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 	case CommandVotes:
 		s.ChannelMessageSend(m.ChannelID, wb.Votes())
 	case CommandKill:
-		if err := wb.Kill(args[0]); err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
-		} else {
-			if wb.humansWon() {
-				s.ChannelMessageSend(m.ChannelID, "Humans won!!")
-			} else if wb.werewolvesWon() {
-				s.ChannelMessageSend(m.ChannelID, "Werewolve won!!")
-			} else {
-				s.ChannelMessageSend(m.ChannelID, "Beware, some wolves are still among you...")
-			}
-		}
+		wb.handleKill(args[0], s, m)
 	case CommandRole:
-		role, err := wb.Role(args[0])
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
-		} else {
-			s.ChannelMessageSend(m.ChannelID, role)
-		}
+		wb.handleRole(args[0], s, m)
 	case CommandRoles:
 		s.ChannelMessageSend(m.ChannelID, wb.Roles())
 	case CommandCleanVotes:
@@ -143,19 +120,62 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 	case CommandHelp:
 		s.ChannelMessageSend(m.ChannelID, help())
 	case CommandAlive:
-		alivePlayers, err := wb.AlivePlayers()
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+		wb.handleAlive(s, m)
+	}
+}
+
+func (wb *WereBot) handleJoin(s *discord.Session, m *discord.MessageCreate) {
+	if err := wb.Join(m.Author); err != nil {
+		s.ChannelMessageSend(m.ChannelID, err.Error())
+	} else {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s registered!", m.Author.Mention()))
+	}
+}
+
+func (wb *WereBot) handleStart(s *discord.Session, m *discord.MessageCreate) {
+	if err := wb.Start(); err != nil {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+	} else {
+		s.ChannelMessageSend(m.ChannelID, "Started!")
+	}
+}
+
+func (wb *WereBot) handleKill(mention string, s *discord.Session, m *discord.MessageCreate) {
+	if err := wb.Kill(mention); err != nil {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+	} else {
+		if wb.humansWon() {
+			s.ChannelMessageSend(m.ChannelID, "Humans won!!")
+		} else if wb.werewolvesWon() {
+			s.ChannelMessageSend(m.ChannelID, "Werewolve won!!")
 		} else {
-			s.ChannelMessageSend(m.ChannelID, alivePlayers)
+			s.ChannelMessageSend(m.ChannelID, "Beware, some wolves are still among you...")
 		}
+	}
+}
+
+func (wb *WereBot) handleRole(roleName string, s *discord.Session, m *discord.MessageCreate) {
+	role, err := wb.Role(roleName)
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+	} else {
+		s.ChannelMessageSend(m.ChannelID, role)
+	}
+}
+
+func (wb *WereBot) handleAlive(s *discord.Session, m *discord.MessageCreate) {
+	alivePlayers, err := wb.AlivePlayers()
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+	} else {
+		s.ChannelMessageSend(m.ChannelID, alivePlayers)
 	}
 }
 
 // Start launches the game. Thus, nobody can join
 // the game untill it is stopped.
 //
-// It requires at least 'MinPlayers' to start.
+// It needs at least 'MinPlayers' to start.
 func (wb *WereBot) Start() error {
 	if wb.started {
 		return fmt.Errorf("already started (%s)", wb.startDate.Format("2006-01-02 15:04:05"))
@@ -326,10 +346,8 @@ func (wb WereBot) AlivePlayers() (string, error) {
 		return "", errors.New("game is not started")
 	}
 	alivePlayers := make([]string, 0)
-	for _, player := range wb.players {
-		if player.alive {
-			alivePlayers = append(alivePlayers, player.User.Username)
-		}
+	for _, player := range wb.players.Alive() {
+		alivePlayers = append(alivePlayers, player.User.Username)
 	}
 	return strings.Join(alivePlayers, ", "), nil
 }
