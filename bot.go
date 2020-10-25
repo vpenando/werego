@@ -313,7 +313,7 @@ func (wb *WereBot) sendPlayersRoles() {
 // AlivePlayers returns the names of all
 // players that has not been killed.
 func (wb WereBot) AlivePlayers() (string, error) {
-	if wb.started {
+	if !wb.started {
 		return "", errors.New("game is not started")
 	}
 	alivePlayers := make([]string, 0)
