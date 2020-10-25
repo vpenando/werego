@@ -41,8 +41,8 @@ func NewWereBot(token string) (*WereBot, error) {
 }
 
 func (wb WereBot) humansWon() bool {
-	for _, p := range wb.players {
-		if p.alive && p.Role&RoleWerewolf != 0 {
+	for _, player := range wb.players {
+		if player.alive && player.Role&RoleWerewolf != 0 {
 			return false
 		}
 	}
@@ -52,13 +52,13 @@ func (wb WereBot) humansWon() bool {
 func (wb WereBot) werewolvesWon() bool {
 	wwCount := 0
 	aliveCount := 0
-	for _, p := range wb.players {
-		if p.alive {
+	for _, player := range wb.players {
+		if player.alive {
 			aliveCount++
 		}
 	}
-	for _, p := range wb.players {
-		if p.alive && p.Role&RoleWerewolf != 0 {
+	for _, player := range wb.players {
+		if player.alive && player.Role&RoleWerewolf != 0 {
 			wwCount++
 		}
 	}
@@ -81,6 +81,7 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		fmt.Println("args:", args)
 	}
 
+	// If a command is sent without a correct number of args
 	if err := checkCommand(command, len(args)); err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())
 		return
@@ -142,9 +143,7 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		} else {
 			s.ChannelMessageSend(m.ChannelID, alivePlayers)
 		}
-
 	}
-
 }
 
 // Start launches the game. Thus, nobody can join
@@ -207,10 +206,8 @@ func (wb WereBot) JoinedUsers() string {
 
 func (wb WereBot) isMentionInUsers(mention string) bool {
 	mention = strings.ReplaceAll(mention, "!", "")
-	for _, u := range wb.users {
-		fmt.Println("User: ", u.Mention())
-		fmt.Println("Mention: ", mention)
-		if u.Mention() == mention {
+	for _, user := range wb.users {
+		if user.Mention() == mention {
 			return true
 		}
 	}
@@ -302,11 +299,15 @@ func (wb *WereBot) Stop() {
 	wb.reset()
 }
 
+func (wb *WereBot) sendDM(user *discord.User, message string) {
+	userChannel, _ := wb.Bot.UserChannelCreate(user.ID)
+	wb.Bot.ChannelMessageSend(userChannel.ID, message)
+}
+
 func (wb *WereBot) sendPlayersRoles() {
 	for _, player := range wb.players {
-		userChannel, _ := wb.Bot.UserChannelCreate(player.User.ID)
 		roleName, _ := RoleToString(player.Role, CurrentLanguage)
-		wb.Bot.ChannelMessageSend(userChannel.ID, roleName)
+		wb.sendDM(player.User, roleName)
 	}
 }
 
