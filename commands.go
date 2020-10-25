@@ -26,19 +26,16 @@ type detailledCommand struct {
 
 var commands = []detailledCommand{
 	{
-		Text:         CommandJoin,
-		HelpText:     "Joins the next game if it hasn't started.",
-		ExpectedArgs: 0,
+		Text:     CommandJoin,
+		HelpText: "Joins the next game if it hasn't started.",
 	},
 	{
-		Text:         CommandStart,
-		HelpText:     "Starts the game if there are enough players.",
-		ExpectedArgs: 0,
+		Text:     CommandStart,
+		HelpText: "Starts the game if there are enough players.",
 	},
 	{
-		Text:         CommandStop,
-		HelpText:     "Stops the game.",
-		ExpectedArgs: 0,
+		Text:     CommandStop,
+		HelpText: "Stops the game.",
 	},
 	{
 		Text:         CommandVote,
@@ -63,6 +60,10 @@ var commands = []detailledCommand{
 	{
 		Text:     CommandCleanVotes,
 		HelpText: "Clears the votes.",
+	},
+	{
+		Text:     CommandAlive,
+		HelpText: "Returns the name of players that has not been killed.",
 	},
 }
 
