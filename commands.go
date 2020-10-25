@@ -1,15 +1,17 @@
 package werego
 
-var (
-	players []Player
-)
-
-func init() {
-	players = make([]Player, 0)
-}
-
-func start() {
-
+func (wb *WereBot) Start() error {
+	count := len(wb.users)
+	roles, err := AllocateRoles(count)
+	if err != nil {
+		return err
+	}
+	for i := 0; i < count; i++ {
+		player := NewPlayer(roles[i])
+		player.User = wb.users[i]
+		wb.players = append(wb.players, player)
+	}
+	return nil
 }
 
 func stop() {
@@ -17,9 +19,5 @@ func stop() {
 }
 
 func vote() {
-
-}
-
-func reset() {
 
 }

@@ -29,7 +29,7 @@ const (
 
 // AllocateRoles picks a given number of roles,
 // depending on the number of players.
-func AllocateRoles(playersCount uint) ([]Role, error) {
+func AllocateRoles(playersCount int) ([]Role, error) {
 	roles, err := computeRoles(playersCount)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func AllocateRoles(playersCount uint) ([]Role, error) {
 	return roles, nil
 }
 
-func computeRoles(playersCount uint) ([]Role, error) {
+func computeRoles(playersCount int) ([]Role, error) {
 	if playersCount < 6 {
 		return nil, errors.New("not enough players")
 	}
@@ -49,14 +49,14 @@ func computeRoles(playersCount uint) ([]Role, error) {
 	return roles, nil
 }
 
-func fillWerewolves(roles *[]Role, playersCount uint) {
+func fillWerewolves(roles *[]Role, playersCount int) {
 	werewolvesCount := computeWerewolvesCount(playersCount)
-	for i := 0; i < int(werewolvesCount); i++ {
+	for i := 0; i < werewolvesCount; i++ {
 		*roles = append(*roles, RoleWerewolf)
 	}
 }
 
-func fillSpecialSlots(roles *[]Role, playersCount uint) {
+func fillSpecialSlots(roles *[]Role, playersCount int) {
 	// Special role: all but villager and ww
 	availableRoles := map[Role]bool{
 		RoleSeer: true,
@@ -82,14 +82,14 @@ func fillSpecialSlots(roles *[]Role, playersCount uint) {
 	}
 }
 
-func fillRemainingSlots(roles *[]Role, playersCount uint) {
-	availableSlots := int(playersCount) - len(*roles)
+func fillRemainingSlots(roles *[]Role, playersCount int) {
+	availableSlots := playersCount - len(*roles)
 	for i := 0; i < availableSlots; i++ {
 		*roles = append(*roles, RoleVillager)
 	}
 }
 
-func computeWerewolvesCount(playersCount uint) uint {
+func computeWerewolvesCount(playersCount int) int {
 	switch {
 	case playersCount <= 6:
 		return 1
