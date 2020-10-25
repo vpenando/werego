@@ -48,9 +48,8 @@ var commands = []detailledCommand{
 		ExpectedArgs: 1,
 	},
 	{
-		Text:         CommandJoined,
-		HelpText:     "Lists the players that have joined the game.",
-		ExpectedArgs: 1,
+		Text:     CommandJoined,
+		HelpText: "Lists the players that have joined the game.",
 	},
 	{
 		Text:         CommandRole,

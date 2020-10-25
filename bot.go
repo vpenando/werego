@@ -66,7 +66,7 @@ func (wb WereBot) werewolvesWon() bool {
 }
 
 func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
-	if m.Content[0] != '!' || len(m.Content) <= 2 {
+	if len(m.Content) == 0 || m.Content[0] != '!' || len(m.Content) <= 2 {
 		return
 	}
 
