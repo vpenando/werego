@@ -1,7 +1,7 @@
 package werego
 
 import (
-	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -39,8 +39,8 @@ func AllocateRoles(playersCount int) ([]Role, error) {
 }
 
 func computeRoles(playersCount int) ([]Role, error) {
-	if playersCount < 6 {
-		return nil, errors.New("not enough players")
+	if playersCount < MinPlayers {
+		return nil, fmt.Errorf("not enough players (%d/%d)", playersCount, MinPlayers)
 	}
 	roles := make([]Role, 0, playersCount)
 	fillWerewolves(&roles, playersCount)

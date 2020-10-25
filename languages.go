@@ -9,14 +9,14 @@ type Language int
 
 // Available languages.
 const (
-	French = iota
+	LanguageFrench = iota
 )
 
 // RoleToString returns a role as string, depending
 // on the given language.
 func RoleToString(role Role, language Language) (string, error) {
 	switch language {
-	case French:
+	case LanguageFrench:
 		return roleToFrench(role)
 	default:
 		return "", errors.New("Unknown language")
