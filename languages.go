@@ -10,6 +10,8 @@ type Language int
 // Available languages.
 const (
 	LanguageFrench = iota
+
+	CurrentLanguage = LanguageFrench
 )
 
 // RoleToString returns a role as string, depending

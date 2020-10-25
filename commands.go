@@ -4,15 +4,16 @@ import "fmt"
 
 // Discord commands
 const (
-	CommandPrefix = "!"
-	CommandJoin   = CommandPrefix + "join"
-	CommandStart  = CommandPrefix + "start"
-	CommandStop   = CommandPrefix + "stop"
-	CommandVote   = CommandPrefix + "vote"
-	CommandVotes  = CommandPrefix + "votes"
-	CommandKill   = CommandPrefix + "kill"
-	CommandJoined = CommandPrefix + "joined"
-	CommandRole   = CommandPrefix + "role"
+	CommandPrefix     = "!"
+	CommandJoin       = CommandPrefix + "join"
+	CommandStart      = CommandPrefix + "start"
+	CommandStop       = CommandPrefix + "stop"
+	CommandVote       = CommandPrefix + "vote"
+	CommandVotes      = CommandPrefix + "votes"
+	CommandKill       = CommandPrefix + "kill"
+	CommandJoined     = CommandPrefix + "joined"
+	CommandRole       = CommandPrefix + "role"
+	CommandCleanVotes = CommandPrefix + "cleanvotes"
 )
 
 var commandWithExpectedArgs = map[string]int{

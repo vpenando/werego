@@ -11,7 +11,7 @@ import (
 
 // Constants
 const (
-	MinPlayers = 6
+	MinPlayers = 1
 )
 
 // WereBot encapsulates the game commands.
@@ -113,6 +113,7 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 	case CommandKill:
 		if err := wb.Kill(args[0]); err != nil {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+		} else {
 			if wb.humansWon() {
 				s.ChannelMessageSend(m.ChannelID, "Humans won!!")
 			} else if wb.werewolvesWon() {
@@ -128,11 +129,15 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		} else {
 			s.ChannelMessageSend(m.ChannelID, role)
 		}
+	case CommandCleanVotes:
+		wb.votes = make(map[string]int, 0)
 	}
+
 }
 
 // Start launches the game. Thus, nobody can join
 // the game untill it is stopped.
+//
 // It requires at least 'MinPlayers' to start.
 func (wb *WereBot) Start() error {
 	if wb.started {
@@ -148,12 +153,14 @@ func (wb *WereBot) Start() error {
 		player.User = wb.users[i]
 		wb.players = append(wb.players, player)
 	}
+	wb.sendPlayersRoles()
 	wb.started = true
 	wb.startDate = time.Now()
 	return nil
 }
 
 // Join adds the user to the next game.
+//
 // It requires the game to NOT be started.
 func (wb *WereBot) Join(user *discord.User) error {
 	if wb.started {
@@ -204,14 +211,16 @@ func (wb *WereBot) Vote(mention string) error {
 	if !wb.isMentionInUsers(mention) {
 		return errors.New("player not found")
 	}
-	if _, found := wb.votes[mention]; found {
+	if _, found := wb.votes[mention]; !found {
 		wb.votes[mention] = 1
+	} else {
+		wb.votes[mention]++
 	}
-	wb.votes[mention]++
 	return nil
 }
 
-// Votes returns a list of votes by player.
+// Votes returns the number of votes
+// for each player.
 func (wb *WereBot) Votes() string {
 	results := make([]string, 0)
 	if len(wb.votes) == 0 {
@@ -223,16 +232,23 @@ func (wb *WereBot) Votes() string {
 	return strings.Join(results, ", ")
 }
 
+// Role returns the role of a given user.
+//
+// The role is visible to EACH USER that can see
+// the channel.
 func (wb WereBot) Role(mention string) (string, error) {
 	mention = strings.ReplaceAll(mention, "!", "")
 	for _, p := range wb.players {
 		if mention == p.User.Mention() {
-			return RoleToString(p.Role, LanguageFrench)
+			return RoleToString(p.Role, CurrentLanguage)
 		}
 	}
 	return "", errors.New("player not found")
 }
 
+// Kill removes a player from the game.
+//
+// It requires the game to be started.
 func (wb *WereBot) Kill(mention string) error {
 	if !wb.started {
 		return errors.New("bot is not started")
@@ -249,7 +265,16 @@ func (wb *WereBot) Kill(mention string) error {
 			player.alive = false
 		}
 	}
+	wb.votes = make(map[string]int, 0)
 	return nil
+}
+
+func (wb *WereBot) sendPlayersRoles() {
+	for _, player := range wb.players {
+		userChannel, _ := wb.Bot.UserChannelCreate(player.User.ID)
+		roleName, _ := RoleToString(player.Role, CurrentLanguage)
+		wb.Bot.ChannelMessageSend(userChannel.ID, roleName)
+	}
 }
 
 func (wb *WereBot) Stop() {
