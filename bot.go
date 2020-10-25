@@ -11,10 +11,10 @@ import (
 
 // Constants
 const (
-	MinPlayers = 1
+	MinPlayers = 6
 )
 
-// WereBot encapsulates the game commands.
+// WereBot handles the game commands.
 // It also contains the logic and game data.
 type WereBot struct {
 	Bot       *discord.Session
@@ -131,6 +131,8 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		}
 	case CommandCleanVotes:
 		wb.votes = make(map[string]int, 0)
+	case CommandHelp:
+		s.ChannelMessageSend(m.ChannelID, help())
 	}
 
 }
@@ -269,16 +271,19 @@ func (wb *WereBot) Kill(mention string) error {
 	return nil
 }
 
+// Stop resets the game.
+//
+// Nothing happens if the game is not started.
+func (wb *WereBot) Stop() {
+	wb.reset()
+}
+
 func (wb *WereBot) sendPlayersRoles() {
 	for _, player := range wb.players {
 		userChannel, _ := wb.Bot.UserChannelCreate(player.User.ID)
 		roleName, _ := RoleToString(player.Role, CurrentLanguage)
 		wb.Bot.ChannelMessageSend(userChannel.ID, roleName)
 	}
-}
-
-func (wb *WereBot) Stop() {
-	wb.reset()
 }
 
 func (wb *WereBot) reset() {
