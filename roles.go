@@ -59,17 +59,14 @@ func fillWerewolves(roles *[]Role, playersCount int) {
 func fillSpecialSlots(roles *[]Role, playersCount int) {
 	// Special role: all but villager and ww
 	availableRoles := map[Role]bool{
-		RoleSeer: true,
-
-		RoleRaven: playersCount >= 6,
-		RoleGuard: playersCount >= 6,
-		RoleThief: playersCount >= 6,
-		RoleIdiot: playersCount >= 6,
-
+		RoleSeer:   true,
+		RoleRaven:  playersCount >= 6,
+		RoleGuard:  playersCount >= 6,
+		RoleThief:  playersCount >= 6,
+		RoleIdiot:  playersCount >= 6,
 		RoleWitch:  playersCount >= 7,
 		RoleHunter: playersCount >= 7,
-
-		RoleCupid: playersCount >= 8,
+		RoleCupid:  playersCount >= 8,
 	}
 	for role, isRoleAvailable := range availableRoles {
 		availableSlots := int(playersCount) - len(*roles)

@@ -17,7 +17,7 @@ const (
 // WereBot handles the game commands.
 // It also contains the logic and game data.
 type WereBot struct {
-	Bot       *discord.Session
+	session   *discord.Session
 	players   []*Player
 	users     []*discord.User
 	started   bool
@@ -32,12 +32,18 @@ func NewWereBot(token string) (*WereBot, error) {
 	if err != nil {
 		return nil, err
 	}
-	wb := &WereBot{Bot: bot}
+	wb := &WereBot{session: bot}
 	bot.AddHandler(func(s *discord.Session, m *discord.MessageCreate) {
 		listen(wb, s, m)
 	})
 	wb.reset()
-	return wb, nil
+	err = wb.session.Open()
+	return wb, err
+}
+
+// Close closes the connection.
+func (wb *WereBot) Close() {
+	wb.session.Close()
 }
 
 func (wb WereBot) humansWon() bool {
@@ -302,8 +308,8 @@ func (wb *WereBot) Stop() {
 }
 
 func (wb *WereBot) sendDM(user *discord.User, message string) {
-	userChannel, _ := wb.Bot.UserChannelCreate(user.ID)
-	wb.Bot.ChannelMessageSend(userChannel.ID, message)
+	userChannel, _ := wb.session.UserChannelCreate(user.ID)
+	wb.session.ChannelMessageSend(userChannel.ID, message)
 }
 
 func (wb *WereBot) sendPlayersRoles() {

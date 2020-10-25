@@ -23,14 +23,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	err = bot.Bot.Open()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 }
 
 func main() {
-	defer bot.Bot.Close()
+	defer bot.Close()
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc

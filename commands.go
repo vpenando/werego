@@ -40,7 +40,7 @@ var commands = []detailledCommand{
 	},
 	{
 		Text:         CommandVote,
-		HelpText:     "Add one vote to a player. Usage: '!vote @player'",
+		HelpText:     "Adds one vote to a player. Usage: '!vote @player'",
 		ExpectedArgs: 1,
 	},
 	{
