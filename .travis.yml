@@ -1,2 +1,4 @@
 language: go
+go:
+- "1.15"
 script: go build && go vet && go test
