@@ -6,7 +6,7 @@ import (
 
 // Player is a Discord player.
 type Player struct {
-	Character
+	*Character
 
 	User *discord.User
 }
