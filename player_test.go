@@ -17,7 +17,7 @@ func TestNewPlayer(t *testing.T) {
 		RoleThief,
 		RoleIdiot,
 		RoleGuard,
-		RoleRaven
+		RoleRaven,
 	}
 	for _, role := range humanRoles {
 		p := NewPlayer(role)
