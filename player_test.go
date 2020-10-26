@@ -7,13 +7,26 @@ import (
 )
 
 func TestNewPlayer(t *testing.T) {
-	p := NewPlayer(RoleVillager)
-	// human
-	assert.Equal(t, RoleVillager, p.Role)
-	assert.True(t, p.IsAlive())
-	assert.True(t, p.IsHuman())
-	assert.False(t, p.IsSheriff())
-	assert.False(t, p.IsWerewolf())
+	// humans
+	humanRoles := []Role{
+		RoleVillager,
+		RoleSeer,
+		RoleWitch,
+		RoleHunter,
+		RoleCupid,
+		RoleThief,
+		RoleIdiot,
+		RoleGuard,
+		RoleRaven
+	}
+	for _, role := range humanRoles {
+		p := NewPlayer(role)
+		assert.Equal(t, role, p.Role)
+		assert.True(t, p.IsAlive())
+		assert.True(t, p.IsHuman())
+		assert.False(t, p.IsSheriff())
+		assert.False(t, p.IsWerewolf())
+	}
 	// ww
 	p = NewPlayer(RoleWerewolf)
 	assert.Equal(t, RoleWerewolf, p.Role)
