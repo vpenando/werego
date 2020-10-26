@@ -28,7 +28,7 @@ func TestNewPlayer(t *testing.T) {
 		assert.False(t, p.IsWerewolf())
 	}
 	// ww
-	p = NewPlayer(RoleWerewolf)
+	p := NewPlayer(RoleWerewolf)
 	assert.Equal(t, RoleWerewolf, p.Role)
 	assert.True(t, p.IsWerewolf())
 	assert.False(t, p.IsHuman())
