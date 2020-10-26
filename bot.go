@@ -66,7 +66,7 @@ func (wb WereBot) humansWon() bool {
 // Returns true if there is at least 50%
 // of werewolves among players.
 func (wb WereBot) werewolvesWon() bool {
-	wwCount := len(wb.players.Werewolves())
+	wwCount := len(wb.players.Werewolves().Alive())
 	aliveCount := len(wb.players.Alive())
 	return wwCount >= (aliveCount / 2)
 }
