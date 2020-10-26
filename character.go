@@ -1,6 +1,6 @@
 package werego
 
-// Character represent an in game character.
+// Character represents an in game character.
 // It has a role and some additional informations.
 type Character struct {
 	Role Role
@@ -16,13 +16,13 @@ type Character struct {
 //  - The character has a given role;
 //  - The character is considered alive;
 //  - The character is NOT sheriff.
-func NewCharacter(role Role) Character {
+func NewCharacter(role Role) *Character {
 	c := Character{
 		Role:    role,
 		alive:   true,
 		sheriff: false,
 	}
-	return c
+	return &c
 }
 
 // IsAlive returns true if the current character
