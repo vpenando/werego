@@ -7,7 +7,8 @@ type Players []*Player
 // Werewolves returns ONLY the players
 // who are considered werewolves.
 func (p Players) Werewolves() Players {
-	werewolves := make(Players, 0)
+	capacity := computeWerewolvesCount(len(p))
+	werewolves := make(Players, 0, capacity)
 	for _, player := range p {
 		if player.IsWerewolf() {
 			werewolves = append(werewolves, player)
