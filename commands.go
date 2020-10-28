@@ -61,7 +61,7 @@ var commands = []detailledCommand{
 	},
 	{
 		Text:     CommandRoles,
-		HelpText: "Displays the role of each player.",
+		HelpText: "Sends the role of each player in DM.",
 	},
 	{
 		Text:     CommandCleanVotes,
