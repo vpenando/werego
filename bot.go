@@ -115,7 +115,7 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 	case CommandRole:
 		wb.handleRole(args[0], s, m)
 	case CommandRoles:
-		s.ChannelMessageSend(m.ChannelID, wb.Roles())
+		wb.sendDM(m.Author, wb.Roles())
 	case CommandCleanVotes:
 		wb.votes = make(map[string]int, 0)
 	case CommandHelp:
