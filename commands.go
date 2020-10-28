@@ -73,7 +73,7 @@ var commands = []detailledCommand{
 	},
 	{
 		Text:         CommandConnect,
-		HelpText:     "Connects to a channel. Usage: '!connect channel'",
+		HelpText:     "Connects to a voice channel. Usage: '!connect channel'",
 		ExpectedArgs: 1,
 	},
 	{
@@ -85,7 +85,7 @@ var commands = []detailledCommand{
 func help() string {
 	result := "Available commands:\n"
 	for _, cmd := range commands {
-		result += "**  " + cmd.Text + " **\n  *" + cmd.HelpText + "*\n"
+		result += "**" + cmd.Text + " **\n *" + cmd.HelpText + "*\n"
 	}
 	return result
 }

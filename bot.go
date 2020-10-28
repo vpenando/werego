@@ -126,6 +126,11 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		wb.handleConnectAudio(args[0], s, m)
 	case CommandDisconnect:
 		wb.disconnect()
+	case "!sound":
+		err := wb.PlaySound("Wolf.mp3")
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
@@ -395,6 +400,25 @@ func (wb WereBot) AlivePlayers() (string, error) {
 		alivePlayers = append(alivePlayers, player.User.Username)
 	}
 	return strings.Join(alivePlayers, ", "), nil
+}
+
+func (wb *WereBot) PlaySound(path string) error {
+	if wb.voice == nil {
+		return errors.New("not connected to voice channel")
+	}
+	buffer, err := openFile(path)
+	if err != nil {
+		return err
+	}
+	time.Sleep(250 * time.Millisecond)
+	wb.voice.Speaking(true)
+	defer wb.voice.Speaking(false)
+	for _, buff := range buffer {
+		wb.voice.OpusSend <- buff
+	}
+
+	time.Sleep(250 * time.Millisecond)
+	return nil
 }
 
 func (wb *WereBot) reset() {
