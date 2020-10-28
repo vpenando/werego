@@ -77,7 +77,7 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		return
 	}
 
-	tokens := strings.Split(m.Content, " ")
+	tokens := strings.Fields(m.Content)
 	command := tokens[0]
 
 	fmt.Println("user:", m.Author.Username)
@@ -126,7 +126,7 @@ func listen(wb *WereBot, s *discord.Session, m *discord.MessageCreate) {
 		wb.handleConnectAudio(args[0], s, m)
 	case CommandDisconnect:
 		wb.disconnect()
-	case "!sound":
+	case CommandSound:
 		err := wb.PlaySound("Wolf.mp3")
 		if err != nil {
 			fmt.Println(err.Error())

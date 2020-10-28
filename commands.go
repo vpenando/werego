@@ -19,6 +19,7 @@ const (
 	CommandAlive      = CommandPrefix + "alive"
 	CommandConnect    = CommandPrefix + "connect"
 	CommandDisconnect = CommandPrefix + "disconnect"
+	CommandSound      = CommandPrefix + "sound"
 )
 
 type detailledCommand struct {
