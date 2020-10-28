@@ -402,6 +402,8 @@ func (wb WereBot) AlivePlayers() (string, error) {
 	return strings.Join(alivePlayers, ", "), nil
 }
 
+// PlaySound loads an audio file and plays it on
+// the current bot's vocal channel.
 func (wb *WereBot) PlaySound(path string) error {
 	if wb.voice == nil {
 		return errors.New("not connected to voice channel")
