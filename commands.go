@@ -94,7 +94,11 @@ func help() string {
 func checkCommand(command string, argsCount int) error {
 	for _, cmd := range commands {
 		if cmd.Text == command && cmd.ExpectedArgs != argsCount {
-			return fmt.Errorf("Error: expected %d args, got %d", cmd.ExpectedArgs, argsCount)
+			argsText := "arg"
+			if cmd.ExpectedArgs > 1 {
+				argsText += "s"
+			}
+			return fmt.Errorf("Error: expected %d %s, got %d", cmd.ExpectedArgs, argsText, argsCount)
 		}
 	}
 	return nil

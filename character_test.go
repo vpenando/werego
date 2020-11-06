@@ -20,6 +20,7 @@ func TestNewCharacter(t *testing.T) {
 	}
 	for _, role := range humanRoles {
 		c := NewCharacter(role)
+		t.Logf("Creating a new character with role '%d'...", c.Role)
 		// human
 		assert.Equal(t, role, c.Role)
 		assert.True(t, c.IsAlive())

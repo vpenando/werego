@@ -386,6 +386,10 @@ func (wb *WereBot) sendPlayersRoles() {
 	for _, player := range wb.players {
 		roleName, _ := RoleToString(player.Role, CurrentLanguage)
 		wb.sendDM(player.User, roleName)
+		roleDesc, err := RoleDescription(player.Role, CurrentLanguage)
+		if err == nil {
+			wb.sendDM(player.User, roleDesc)
+		}
 	}
 }
 
