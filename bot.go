@@ -223,7 +223,7 @@ func (wb *WereBot) disconnect() {
 }
 
 // Start launches the game. Thus, nobody can join
-// the game untill it is stopped.
+// the game until it is stopped.
 //
 // It needs at least 'MinPlayers' to start.
 func (wb *WereBot) Start() error {
